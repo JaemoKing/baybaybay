@@ -37,9 +37,9 @@
                 <div id="menu2" class="nav-box menuhd">
                     <ul>
                         <li class="index">
-                            <a href="#" class="">
+                            <router-link to="/index">
                                 <span class="out" style="top: 0px;">首页</span>
-                            </a>
+                            </router-link>
                         </li>
                         <li class="news">
                             <a href="#" class="">
@@ -79,7 +79,7 @@
             </div>
             </div>
         </div>
-
+        <router-view></router-view>
         <!-- 底部 -->
         <div class="footer">
             <div class="section">
@@ -147,8 +147,4 @@ export default {
 @import url("./assets/statics/site/css/style.css");
 /* 导入jq插件css文件 */
 @import url("./assets/lib/css/style.css");
-
-#menu2 {
-    background-image: none;
-}
 </style>
