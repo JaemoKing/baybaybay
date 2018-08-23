@@ -62,7 +62,7 @@
                             </a>
                         </li>
                         <li class="goods">
-                            <a href="" class="router-link-exact-active ">
+                            <a href="" class="">
                                 <span class="out" style="top: 0px;">购物商城</span>
                             </a>
                         </li>
@@ -116,13 +116,39 @@
 </template>
 
 <script>
+// 导入 jq包
+import $ from 'jquery';
+//复制jq插件js代码
+$(document).ready(function() {
+    $("#menu2 li a").wrapInner('<span class="out"></span>');
+    $("#menu2 li a").each(function() {
+        $('<span class="over">' + $(this).text() + "</span>").appendTo(this);
+    });
+
+    $("#menu2 li a").hover(
+        function() {
+          $(".out", this).stop().animate({ top: "48px" }, 300); // move down - hide
+          $(".over", this).stop().animate({ top: "0px" }, 300); // move down - show
+        },
+        function() {
+          $(".out", this).stop().animate({ top: "0px" }, 300); // move up - show
+          $(".over", this).stop().animate({ top: "-48px" }, 300); // move up - hide
+        }
+    );
+});
 
 export default {
-  name: "app"
+  name: "container"
 };
 </script>
 
 <style>
-    /* 导入css文件 */
-    @import './assets/statics/site/css/style.css';
+/* 导入css文件 */
+@import url("./assets/statics/site/css/style.css");
+/* 导入jq插件css文件 */
+@import url("./assets/lib/css/style.css");
+
+#menu2 {
+    background-image: none;
+}
 </style>
