@@ -79,6 +79,7 @@
             </div>
             </div>
         </div>
+        <!-- 路由出口 路由匹配到的组件将渲染在这里 视图出口  组件出口 -->
         <router-view></router-view>
         <!-- 底部 -->
         <div class="footer">
