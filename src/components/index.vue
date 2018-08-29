@@ -106,8 +106,6 @@
 </template>
 
 <script>
-// 导入 axios
-import axios from "axios";
 
 export default {
   //设置名字
@@ -130,8 +128,8 @@ export default {
   //创建完毕
   created() {
     // 发送请求获取 轮播图 置顶 分类导航 数据
-    axios
-      .get("http://47.106.148.205:8899/site/goods/gettopdata/goods")
+    this.$axios
+      .get("site/goods/gettopdata/goods")
       .then(response => {
         //   console.log(response)
         //把获取到的数据设置给 当前这个组件的 data属性
@@ -143,8 +141,8 @@ export default {
       });
 
     // 发送请求获取 商品列表数据
-    axios
-      .get("http://47.106.148.205:8899/site/goods/getgoodsgroup")
+    this.$axios
+      .get("site/goods/getgoodsgroup")
       .then(response => {
         //   console.log(response);
         this.message = response.data.message;

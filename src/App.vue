@@ -22,11 +22,14 @@
                         <a>退出</a>
                         <strong>|</strong>
                     </span>
-                    <a href="" class="">
+                    <!-- <a href="" class=""> -->
+                    <router-link to="/cart">
                         <i class="iconfont icon-cart"></i>购物车(
                         <span id="shoppingCartCount">
-                            <span>4</span>
-                        </span>)</a>
+                            <span>{{$store.getters.goodsCount}}</span>
+                        </span>)
+                    </router-link>
+                        <!-- </a> -->
                 </div>
             </div>
             </div>
@@ -117,26 +120,26 @@
 </template>
 
 <script>
-// 导入 jq包
-import $ from 'jquery';
-//复制jq插件js代码
-$(document).ready(function() {
-    $("#menu2 li a").wrapInner('<span class="out"></span>');
-    $("#menu2 li a").each(function() {
-        $('<span class="over">' + $(this).text() + "</span>").appendTo(this);
-    });
+    // 导入 jq包
+    import $ from 'jquery';
+    //复制jq插件js代码
+    $(document).ready(function() {
+        $("#menu2 li a").wrapInner('<span class="out"></span>');
+        $("#menu2 li a").each(function() {
+            $('<span class="over">' + $(this).text() + "</span>").appendTo(this);
+        });
 
-    $("#menu2 li a").hover(
-        function() {
-          $(".out", this).stop().animate({ top: "48px" }, 300); // move down - hide
-          $(".over", this).stop().animate({ top: "0px" }, 300); // move down - show
-        },
-        function() {
-          $(".out", this).stop().animate({ top: "0px" }, 300); // move up - show
-          $(".over", this).stop().animate({ top: "-48px" }, 300); // move up - hide
-        }
-    );
-});
+        $("#menu2 li a").hover(
+            function() {
+              $(".out", this).stop().animate({ top: "48px" }, 300); // move down - hide
+              $(".over", this).stop().animate({ top: "0px" }, 300); // move down - show
+            },
+            function() {
+              $(".out", this).stop().animate({ top: "0px" }, 300); // move up - show
+              $(".over", this).stop().animate({ top: "-48px" }, 300); // move up - hide
+            }
+        );
+    });
 
 export default {
   name: "container"
