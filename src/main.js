@@ -10,6 +10,11 @@ import Index from './components/index.vue';
 import detail from './components/productDetail.vue';
 // 导入购物车页面组件
 import ShoppingCart from './components/shoppingCart.vue';
+// 导入登录页面组件
+import Login from './components/login.vue';
+// 导入订单页面组件
+import FillOrder from './components/fillOrder.vue';
+
 //引入 elementUi 插件
 import ElementUI from 'element-ui';
 //引入 elementUi 插件 css文件
@@ -44,6 +49,9 @@ Vue.use(iView);
 import axios from 'axios';
 //把请求数据基地址存在属性中 全局使用
 axios.defaults.baseURL = 'http://47.106.148.205:8899';
+//让ajax携带cookie
+// 跨域请求时 是否会携带 凭证(cookie)
+axios.defaults.withCredentials=true;
 // 把axios 放在vue构造函数原型对象的属性在 然后全局使用
 Vue.prototype.$axios = axios;
 
@@ -72,7 +80,11 @@ const store = new Vuex.Store({
     // state 这里存的是我们的数据
     state: {
         // count: 998
-        cartData: JSON.parse(window.localStorage.getItem('goodKey')) || {}
+        cartData: JSON.parse(window.localStorage.getItem('goodKey')) || {},
+        // 是否已登录 false 未登录 true 已登录
+        isLogin: false,
+        // 过来时的地址
+        fromPath: ''
     },
     // 这个是暴露的修改方法
     mutations: {
@@ -111,6 +123,17 @@ const store = new Vuex.Store({
             // 使用上边的delete删除对象中的属性 可以删除 但是不能触发视图更新(就是页面上的数据删除后不会改变)
             // 需要调用 Vue.delete方法才可以删除的同时让视图更新
             Vue.delete(state.cartData,goodId);
+        },
+
+        // 切换登录状态
+        changeLoginStatus (state,isLogin){
+            state.isLogin = isLogin;
+        },
+
+        // 增加一个保存 来时地址的方法
+        saveFromPath (state,fromPath){
+            // 在导航守卫中使用提交载荷调用这个函数把路径传过来即可
+            state.fromPath = fromPath;
         }
     },
 
@@ -119,12 +142,16 @@ const store = new Vuex.Store({
         goodsCount: state => {
             // 临时num
             let num = 0;
-            //循环数据对象
-            for ( const key in state.cartData ){
-                // console.log(key);
-                //累加数字 得到总数
-                num += state.cartData[key];
+            // 判断是否登录 根据登录状态显示或隐藏购物车数组
+            if ( state.isLogin == true ){
+                //循环数据对象
+                for ( const key in state.cartData ){
+                    // console.log(key);
+                    //累加数字 得到总数
+                    num += state.cartData[key];
+                }
             }
+            
             // 返回总数
             // console.log(num)
             return num;
@@ -154,12 +181,22 @@ const routes = [
     // 商品详情页规则
     {
         path: '/detail/:id',
-        component: detail //传入组件对象 Index
+        component: detail //传入组件对象 detail
     },
     // 购物车页面规则
     {
         path: '/cart',
-        component: ShoppingCart //传入组件对象 Index
+        component: ShoppingCart //传入组件对象 ShoppingCart
+    },
+    // 登录页面规则
+    {
+        path: '/login',
+        component: Login //传入组件对象 login
+    },
+    // 订单详情页面路由
+    {
+      path: '/order/:ids',
+      component: FillOrder,
     }
 ]
 
@@ -168,6 +205,36 @@ let router = new VueRouter({
     // 传入路由规则 快速赋值 这个key 是固定的必须写 routes
     routes
 })
+
+// 增加 导航守卫(路由守卫)  相当于node-express 中的中间件， 所有路由跳转都会进过这里过滤一遍
+router.beforeEach((to, from, next) => {
+    // 每次过来都保存一下来时的地址
+    // 提交载荷 保存数据
+    store.commit('saveFromPath',from.path);
+    // console.log('to',to);
+    // console.log('from',from);
+    // 必须要执行 否则 不会跳转
+    // next()
+    // 如果访问的是 order 页面 就做登录判断
+    // to.path.indexOf('/order/') != -1  indexOf() 方法 = -1 是没有 =0 是有
+    if ( to.path.indexOf('/order/') != -1 ){
+        // 调用接口
+        axios.get('/site/account/islogin').then( response => {
+            // 判断是否登录 登录了才能继续访问
+            if ( response.data.code != 'nologin' ){
+                // 登录了 直接放走即可
+                next();
+            }else {
+                // 没登录 就打回登录页
+                next('/login');
+            }
+        })
+    }else {
+        // 如果要访问的不是order页面就 直接让他访问
+        next();
+    }
+})
+
 
 //挂载到 Vue实例上
 
@@ -178,5 +245,22 @@ new Vue({
     //路由对象
     router,
     // 仓库对象 实行的名字也叫 store es6快速赋值写法
-    store
+    store,
+
+    // 实例化vue前就做登录状态判断 如果登录就做登录状态保持刷新之后还是登录状态
+    // vue实例化前 用 beforeCreate 声明周期函数 他是在vue注册之前触发的
+    beforeCreate (){
+        // 请求登录接口 获取登录状态还判断是否登录成功 然后修改登录状态 那么刷新后登录状态就能保持不会要重新登录
+        axios.get('/site/account/islogin').then( response => {
+            // 根据返回数据判断是否登录成功  返回 logined 登录成功
+            if ( response.data.code == 'logined' ){
+                // 登录成功
+                // 修改登录状态 做登录状态保持
+                store.state.isLogin = true;
+            }else {
+                // 没有登录 不用做处理  
+            }
+        })
+    }
+
 }).$mount('#app')

@@ -137,7 +137,7 @@ export default {
         this.sliderlist = response.data.message.sliderlist;
         this.toplist = response.data.message.toplist;
         //打印数据
-        console.log(this.sliderlist);
+        // console.log(this.sliderlist);
       });
 
     // 发送请求获取 商品列表数据

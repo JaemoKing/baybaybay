@@ -1,5 +1,5 @@
 <template>
-<div>
+<div v-loading="loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(0,0,0,.5)">
   <div class="section">
             <div class="location">
                 <span>当前位置：</span>
@@ -103,8 +103,10 @@
                     <!--购物车底部-->
                     <div class="cart-foot clearfix">
                         <div class="right-box">
-                            <button class="button" onclick="javascript:location.href='/index.html';">继续购物</button>
-                            <button class="submit" onclick="formSubmit(this, '/', '/shopping.html');">立即结算</button>
+                            <router-link to="/index">
+                                <button class="button">继续购物</button>
+                            </router-link>
+                            <button class="submit" @click="checkAndSubmit">立即结算</button>
                         </div>
                     </div>
                     <!--购物车底部-->
@@ -120,7 +122,9 @@ export default {
   data: function() {
     return {
       // 存数据的数组
-      message: []
+      message: [],
+      // 是否在加载中
+      loading: false
     };
   },
 
@@ -217,6 +221,51 @@ export default {
                   this.message.splice(i,1);
               }
           })
+      },
+
+      // 点击结算 验证是否登录 和 跳转结算页面
+      checkAndSubmit (){
+          // 判断  根据总金额 判断用户是否选择了商品进行结算 
+          if ( this.totalCount == 0 ){
+              // 给用户提示
+              this.$Message.error('请选择要结算的商品，商品数量不能等于0，不然你结算个毛啊！');
+              //停止执行下边的代码
+              return;
+          }
+
+          //获取到选中商品的id
+          let ids = '';
+          this.message.forEach( v => {
+              ids += v.id;
+              ids += ',';
+          });
+          // 因为拼接完之后最后一个元素是个逗号 所以要把逗号截取掉
+          ids = ids.slice(0,-1);
+        //   console.log(ids);
+          // 拿到要选中的商品的id后 就通过路由跳转到 order 订单页面
+          // vue中使用路由的 this.$router.push(`/order/${ids}`) 方法来跳转页面 跳转到时候拼接上需要传递的参数
+          this.$router.push(`/order/${ids}`); 
+
+        // 使用上边的代码结合 main.js 中的导航守卫来做 登录判断 下边的代码可以注释掉了
+        //-----------------------------------------------------------------------------------------------
+        //   // 弹窗提示 loading框 在请求数据前开启loading弹窗提示
+        //   this.loading = true;
+        //   //根据后台提供的验证登录接口请求 来判断
+        //   this.$axios.get('site/account/islogin').then( response => {
+        //     //   console.log(response);
+        //     setTimeout(() => {
+        //         // 拿到数据之后 关闭loading 弹窗提示
+        //         this.loading = false;
+        //         //  判断是否登录 
+        //         if ( response.data.code == 'nologin' ){
+        //             // 没有登录  跳转到登录页面
+        //             this.$router.push('/login');
+        //         }else {
+        //             // 登录  跳转到结算页面 
+        //             this.$router.push('/order');
+        //         }
+        //     },1000);
+        //   })
       }
   }
 };
