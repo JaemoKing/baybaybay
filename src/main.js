@@ -13,7 +13,17 @@ import ShoppingCart from './components/shoppingCart.vue';
 // 导入登录页面组件
 import Login from './components/login.vue';
 // 导入订单页面组件
-import FillOrder from './components/fillOrder.vue';
+import order from './components/order.vue';
+// 导入支付订单组件
+import PayOrder from './components/payOrder.vue';
+// 导入 订单支付页面组件
+import PaySuccess from './components/paySuccess.vue';
+// 导入支付订单组件
+import VipCenter from './components/vipCenter.vue';
+// 导入订单列表组件
+import OrderList from './components/orderList.vue';
+// 导入订单详情页面组件
+import OrderDetail from './components/orderDetail.vue';
 
 //引入 elementUi 插件
 import ElementUI from 'element-ui';
@@ -61,8 +71,15 @@ Vue.prototype.$axios = axios;
 // 依赖于 moment.js 所以先导入moment.js包
 import moment from 'moment';
 // 注册
-Vue.filter('filterDate', function (value) {
-    return moment(value).format('YYYY年MM月DD日')
+Vue.filter('filterDate', function (value,formatStr) {
+    // console.log(formatStr);
+    // 如果传入了格式化字符串 就用传入的字符串来格式化 否则就用手动输入的字符串来格式件
+    if ( formatStr != undefined ){
+        return moment(value).format(formatStr)
+    }else {
+        // 没有传入个格式化字符串 就用 默认的
+        return moment(value).format('YYYY年MM月DD日')
+    }
 })
 
 //放大镜 插件
@@ -135,22 +152,20 @@ const store = new Vuex.Store({
             // 在导航守卫中使用提交载荷调用这个函数把路径传过来即可
             state.fromPath = fromPath;
         }
-    },
-
+    }, 
+    
     // vuex 中的计算属性是 getters 和vue中的计算属性 computed 用法是一样的 区别就是两个名字不一样而已
     getters: {
         goodsCount: state => {
             // 临时num
             let num = 0;
             // 判断是否登录 根据登录状态显示或隐藏购物车数组
-            if ( state.isLogin == true ){
                 //循环数据对象
                 for ( const key in state.cartData ){
                     // console.log(key);
                     //累加数字 得到总数
                     num += state.cartData[key];
                 }
-            }
             
             // 返回总数
             // console.log(num)
@@ -186,7 +201,8 @@ const routes = [
     // 购物车页面规则
     {
         path: '/cart',
-        component: ShoppingCart //传入组件对象 ShoppingCart
+        component: ShoppingCart, //传入组件对象 ShoppingCart
+        meta:{ checkLogin:true }
     },
     // 登录页面规则
     {
@@ -196,8 +212,52 @@ const routes = [
     // 订单详情页面路由
     {
       path: '/order/:ids',
-      component: FillOrder,
-    }
+      component: order,
+      meta:{ checkLogin:true }
+    },
+    // 订单支付路由
+    {
+      path: '/payOrder/:orderid',
+      component: PayOrder,
+      // 路由元信息 可以随意加  订单支付页 也必须登陆才可以访问
+      meta: { checkLogin: true }
+    },
+    // 订单支付成功路由
+    {
+      path: '/paySuccess/:id',
+      component: PaySuccess,
+      // 路由元信息 可以随意加  订单支付页 也必须登陆才可以访问
+      meta: {
+        checkLogin: true
+      }
+    },
+    // 会员中心路由
+    {
+      path: '/VipCenter',
+      component: VipCenter,
+      // 路由元信息 可以随意加  订单支付页 也必须登陆才可以访问
+      meta: {
+        checkLogin: true
+      }
+    },
+    // 订单列表路由
+    {
+      path: '/orderList',
+      component: OrderList,
+      // 路由元信息 可以随意加  订单支付页 也必须登陆才可以访问
+      meta: {
+        checkLogin: true
+      }
+    },
+    // 订单详情路由
+    {
+      path: '/orderDetail/:id',
+      component: OrderDetail,
+      // 路由元信息 可以随意加  订单支付页 也必须登陆才可以访问
+      meta: {
+        checkLogin: true
+      }
+    },
 ]
 
 //实例化路由对象
@@ -217,7 +277,25 @@ router.beforeEach((to, from, next) => {
     // next()
     // 如果访问的是 order 页面 就做登录判断
     // to.path.indexOf('/order/') != -1  indexOf() 方法 = -1 是没有 =0 是有
-    if ( to.path.indexOf('/order/') != -1 ){
+    // if ( to.path.indexOf('/order/') != -1 ){
+    //     // 调用接口
+    //     axios.get('/site/account/islogin').then( response => {
+    //         // 判断是否登录 登录了才能继续访问
+    //         if ( response.data.code != 'nologin' ){
+    //             // 登录了 直接放走即可
+    //             next();
+    //         }else {
+    //             // 没登录 就打回登录页
+    //             next('/login');
+    //         }
+    //     })
+    // }else {
+    //     // 如果要访问的不是order页面就 直接让他访问
+    //     next();
+    // }
+
+    // 使用 vue-router 路由中的  路由元信息 来做页面跳转判断( 判断哪些页面需要登录才能访问)
+    if ( to.meta.checkLogin ){
         // 调用接口
         axios.get('/site/account/islogin').then( response => {
             // 判断是否登录 登录了才能继续访问
@@ -230,7 +308,6 @@ router.beforeEach((to, from, next) => {
             }
         })
     }else {
-        // 如果要访问的不是order页面就 直接让他访问
         next();
     }
 })
