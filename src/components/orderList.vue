@@ -195,19 +195,19 @@
 </script>
 
 <style>
-/* 标题区域 */
-.sub-tit {
-  padding-top: 0;
-}
-/* 头像高度 */
-.avatar-box {
-  height: auto;
-}
-td {
-  height: 60px;
-}
-td a{
-    display: block;
-}
+    /* 标题区域 */
+    .sub-tit {
+      padding-top: 0;
+    }
+    /* 头像高度 */
+    .avatar-box {
+      height: auto;
+    }
+    td {
+      height: 60px;
+    }
+    td a{
+        display: block;
+    }
 </style>
 

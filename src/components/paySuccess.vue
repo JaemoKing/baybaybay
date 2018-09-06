@@ -42,19 +42,21 @@ export default {
     name:'paySuccess',
     data:function(){
         return {
-            time:5
+            time:5,
+            // 定义定时器
+            insterId: 0
         }
     },
     // mounted 声明周期函数 是在页面渲染出来之后执行的
     mounted(){
         // 定时器 间隔为 1秒 5秒后跳转到会员中心
-        let insterId = setInterval( () => {
+        this.insterId = setInterval( () => {
             //组件中的
             this.time--;
             // 判断
             if ( this.time == 0 ){
                 // time = 0 就清除定时器
-                clearInterval( insterId );
+                clearInterval( this.insterId );
                 // 跳转页面
                 // this.$router.push('/VipCenter');
                 // 返回上一页 上上一页
@@ -63,7 +65,12 @@ export default {
                 this.$router.push('/orderDetail/'+this.$route.params.id);
             }
         }, 1000)
-    }
+    },
+
+    // 生命周期函数(钩子函数) 组件销毁后执行(也就是离开当前组件后执行)
+    destroyed() {
+        clearInterval( this.insterId );
+    },
 };
 </script>
 <style>

@@ -81,7 +81,7 @@
                                             如果要保留原始形参 并且额外的增加一个自定义实参 
                                             用 $event 他是来保留事件参数的 写法是固定的 然后在他后边增加自定义实参
                                         -->
-                                        <el-input-number size="mini" :min="0" @change="numChange($event,item.id)" v-model="item.buycount"></el-input-number>
+                                        <el-input-number size="mini" :min='0' :max="item.max" @change="numChange($event,item.id)" v-model="item.buycount"></el-input-number>
                                     </td>
                                     <td>{{ item.buycount * item.sell_price }}</td>
                                     <td>
@@ -151,10 +151,17 @@ export default {
         // console.log(response);
         // 因为服务器返回的数据没有 数量 所以我们要自行拼接数量
         response.data.message.forEach(v => {
+            // console.log(v.id);
           // 获取 vuex 中 id对应的值
           v.buycount = cartData[v.id];
           // 设置是否被选中
           v.selected = true; // true 为选中状态
+          // 根据商品id 发送请求获取库存量 赋值给 max
+          this.$axios.get(`site/goods/getgoodsinfo/${v.id}`).then( resSon => {
+            //   console.log( response.data.message.goodsinfo.stock_quantity );
+            // 给每个元素添加一个max属性并且把库存量赋值给max属性
+            v.max = resSon.data.message.goodsinfo.stock_quantity;
+          })
         });
         // 再赋值给 message 即可
         this.message = response.data.message;

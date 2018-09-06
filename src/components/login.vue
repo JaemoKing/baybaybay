@@ -70,10 +70,23 @@
                     // 根据状态码判断是否登录成功 然后在返回到来时的页面
                     if ( response.data.status == 0 ){
                         // 登录成功
+                        // 用户提示
+                        this.$Notice.success({
+                            title: '提示',
+                            desc: response.data.message
+                        });
                         // 用 提交载荷 修改vuex中的isLogin状态
                         this.$store.commit('changeLoginStatus',true);
-                        //跳转回你来时的页面
-                        this.$router.push(this.$store.state.fromPath);
+                        //跳转回你来时的页面 
+                        // this.$router.push(this.$store.state.fromPath);
+                        // 第二种跳转到来时页面
+                        this.$router.go(-1); // -1 返回上一页 -2 返回上上页
+                    }else {
+                        // 用户提示
+                        this.$Notice.error({
+                            title: '提示',
+                            desc: response.data.message
+                        });
                     }
                 }).catch( response => {
                     // 显示错误状态的进度条

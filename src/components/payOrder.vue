@@ -93,7 +93,9 @@ export default {
     name:"payOrder",
     data: function (){
         return {
-            orderInfo: {}
+            orderInfo: {},
+            // 定义一个定时器
+            interId: 0
         }
     },
 
@@ -112,7 +114,7 @@ export default {
             this.orderInfo = response.data.message[0];
         });
         // 用定时器的方式 轮询 查询是否支付订单 过几秒就请求一次问一次是否支付成功 成功就跳转页面否则留在当前页面
-        let interId = setInterval( () => {
+        this.interId = setInterval( () => {
             // 发送请求
             this.$axios.get(`site/validate/order/getorder/${this.$route.params.orderid}`)
             .then( response => {
@@ -126,7 +128,7 @@ export default {
                         this.$router.push('/paySuccess/'+this.$route.params.orderid);
                     },500);
                     // 付款成功后清除定时器
-                    clearInterval( interId );
+                    clearInterval( this.interId );
                 }else {
                     // 没有付款成功 什么事都不做留在当前页面
                 }
@@ -134,6 +136,11 @@ export default {
         }, 1000)
     },
 
+    // 生命周期函数(钩子函数) 组件销毁后执行(也就是离开当前组件后执行)
+    destroyed() {
+        // 清除定时器
+        clearInterval( this.interId );
+    },
     // 方法
     methods: {
         goPayOrder (){
